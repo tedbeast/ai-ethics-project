@@ -23,7 +23,10 @@ public class languageSentiment{
 		int countryIncrement = 0;
 		boolean flag = true;
 		String temp;
+		
+			//CHANGE THE TIME TO GET MORE DATA, PARSING THE WHOLE FILE WILL TAKE A LONG TIME
 		double maxTime = 10000;
+			
 		double currentTime = System.currentTimeMillis();
 		
 		while(flag = true){
