@@ -1,3 +1,5 @@
+package cs1555;
+
 import java.io.*;
 import java.math.*;
 import java.util.*;
@@ -31,6 +33,8 @@ public class globalBayes {
 		BufferedWriter masterWriter = new BufferedWriter(new FileWriter("master_output.txt"));
 		BufferedWriter globalWriter = new BufferedWriter(new FileWriter("global_output.txt"));
 		
+		BufferedWriter testWriter = new BufferedWriter(new FileWriter("test_set.txt"));
+		
 		String in = "";
 		geoReader.readLine();
 		int num = 500;
@@ -40,7 +44,8 @@ public class globalBayes {
 		int sentiment = -1;
 		String text = "";
 		int skip = 0;
-		boolean flag = false;;
+		boolean flag = false;
+		int testSize=5;
 		
 		while((in = sentimentReader.readLine())!=null) {
 			String[] s = in.split(",");
@@ -55,10 +60,14 @@ public class globalBayes {
 				break;
 			if(sentiment <2) {
 				sentiment = 0;
+				masterNeg++;
 			}else if(sentiment >2) {
 				sentiment = 1;
-			}else
+				masterPos++;
+			}else {
 				sentiment = -1;
+				
+			}
 			if(sentiment!=-1) {
 				text = cleanText(s[5]);
 				//System.out.println(text);
@@ -66,17 +75,13 @@ public class globalBayes {
 				String[] splitText = text.split("\\W");
 				for(int i = 0; i < splitText.length; i++) {
 					//System.out.println(splitText[i]);
-					
+					if(splitText[i].length()>0&&!splitText[i].contains("http")) {
 					if(master.get(splitText[i])==null){
 						master.put(splitText[i], new dictionaryEntry(splitText[i]));
 					}
-					if(sentiment == 0)
-						masterPos++;
-					if(sentiment == 1) {
-						masterNeg++;
-					}
 					totalWords++;
 					master.get(splitText[i]).inc(sentiment==1);
+					}
 				}
 			}
 		}
@@ -100,14 +105,16 @@ public class globalBayes {
 		System.out.println(getSentiment(master, testString4.split("\\W"), masterPos, masterNeg));
 		*/
 		//System.out.println(master);
+		skip = 0;
 		int countryNum = -1;
 		while((in = geoReader.readLine())!=null) {
 			String[] s = in.split("\t");
 			
 			if(Integer.parseInt(s[4])==1) {
+				
 				text = cleanText(s[3]);
-				//System.out.println(s[0] + " : " + s[1] + " : " + s[3]);
 				countryCode = s[1];
+				skip++;
 				if(!countries.containsKey(countryCode)) {
 					countries.put(countryCode, 0L);
 					countriesPositive.add(countryIncrement,0 );
@@ -117,6 +124,11 @@ public class globalBayes {
 					dictionary.add(countryIncrement, new HashMap<String,dictionaryEntry>());
 					countryIncrement++;
 				}
+				
+				if(skip%testSize==0) {
+					testWriter.append(countryCode+":"+text+"/");
+				}
+				else {
 				countryNum = countriesNumber.get(countryCode);
 				countries.put(countryCode, countries.get(countryCode)+1);
 				sentiment = getSentiment(master, text.split("\\W"), masterPos, masterNeg);
@@ -128,12 +140,13 @@ public class globalBayes {
 				}
 				String[] splitText = text.split("\\W");
 				for(int i = 0; i < splitText.length; i++) {
-					if(splitText[i].length()>0) {
+					if(splitText[i].length()>0&&!splitText[i].contains("http")) {
 						if(dictionary.get(countriesNumber.get(countryCode)).get(splitText[i])==null){
 							dictionary.get(countriesNumber.get(countryCode)).put(splitText[i], new dictionaryEntry(splitText[i]));
 						}
 						(dictionary.get(countriesNumber.get(countryCode))).get(splitText[i]).inc(sentiment==1);
 					}
+				}
 				}
 			}
 		}
@@ -147,9 +160,9 @@ public class globalBayes {
 			wordlist = new ArrayList<String>(thisMap.keySet());
 			dictlist = new ArrayList<dictionaryEntry>(thisMap.values());
 			for(int j = 0; j < wordlist.size();  j++) {
+				
 				globalWriter.append(wordlist.get(j) + ":" + dictlist.get(j)+"/");
 			}
-			System.out.println("");
 			}
 		}
 	}
@@ -157,6 +170,7 @@ public class globalBayes {
 
 static String cleanText(String in) {
 	in = in.trim().toLowerCase();
+	in = in.replaceAll("@\\p{L}+", "");
 	in = in.replaceAll("[^a-zA-Z0-9\\s]", "");
 	return in;
 }
