@@ -25,13 +25,12 @@ public class globalBayes {
 		HashMap<String, dictionaryEntry> master = new HashMap<String, dictionaryEntry>();
 		long masterPos = 0;
 		long masterNeg = 0;
-		long totalWords = 0;
 		
 		BufferedReader sentimentReader = new BufferedReader(new FileReader("training.1600000.processed.noemoticon.csv"));
 		BufferedReader geoReader = new BufferedReader(new FileReader("all_annotated.tsv"));
 		
 		BufferedWriter masterWriter = new BufferedWriter(new FileWriter("master_output.txt"));
-		BufferedWriter globalWriter = new BufferedWriter(new FileWriter("global_output.txt"));
+		BufferedWriter globalWriter = new BufferedWriter(new FileWriter("trained_set.txt"));
 		
 		BufferedWriter testWriter = new BufferedWriter(new FileWriter("test_set.txt"));
 		
@@ -77,9 +76,8 @@ public class globalBayes {
 					//System.out.println(splitText[i]);
 					if(splitText[i].length()>0&&!splitText[i].contains("http")) {
 					if(master.get(splitText[i])==null){
-						master.put(splitText[i], new dictionaryEntry(splitText[i]));
+						master.put(splitText[i], new dictionaryEntry());
 					}
-					totalWords++;
 					master.get(splitText[i]).inc(sentiment==1);
 					}
 				}
@@ -89,7 +87,7 @@ public class globalBayes {
 		List<String> wordlist = new ArrayList<String>(master.keySet());
 		List<dictionaryEntry> dictlist = new ArrayList<dictionaryEntry>(master.values());
 		for(int i = 0; i < wordlist.size(); i++) {
-			masterWriter.append(wordlist.get(i)+":"+dictlist.get(i)+"/");
+			masterWriter.append(wordlist.get(i)+":"+dictlist.get(i)+"\n");
 			
 		}
 		/*
@@ -126,7 +124,7 @@ public class globalBayes {
 				}
 				
 				if(skip%testSize==0) {
-					testWriter.append(countryCode+":"+text+"/");
+					testWriter.append(countryCode+":"+text+"\n");
 				}
 				else {
 				countryNum = countriesNumber.get(countryCode);
@@ -142,7 +140,7 @@ public class globalBayes {
 				for(int i = 0; i < splitText.length; i++) {
 					if(splitText[i].length()>0&&!splitText[i].contains("http")) {
 						if(dictionary.get(countriesNumber.get(countryCode)).get(splitText[i])==null){
-							dictionary.get(countriesNumber.get(countryCode)).put(splitText[i], new dictionaryEntry(splitText[i]));
+							dictionary.get(countriesNumber.get(countryCode)).put(splitText[i], new dictionaryEntry());
 						}
 						(dictionary.get(countriesNumber.get(countryCode))).get(splitText[i]).inc(sentiment==1);
 					}
@@ -151,9 +149,8 @@ public class globalBayes {
 			}
 		}
 
-		
 		for(int i = 0; i < countryIncrement; i++) {
-			//System.out.print(i+":"+numberCountries.get(i)+":"+(countriesPositive.get(i)+countriesNegative.get(i))+" ");
+			System.out.print(i+":"+numberCountries.get(i)+":"+(countriesPositive.get(i)+countriesNegative.get(i))+" ");
 			if((countriesPositive.get(i)+countriesNegative.get(i))>1)  {
 			globalWriter.append("#"+i+":"+numberCountries.get(i)+":"+countriesPositive.get(i)+":"+countriesNegative.get(i)+"\n");
 			HashMap thisMap = dictionary.get(i);
@@ -161,10 +158,13 @@ public class globalBayes {
 			dictlist = new ArrayList<dictionaryEntry>(thisMap.values());
 			for(int j = 0; j < wordlist.size();  j++) {
 				
-				globalWriter.append(wordlist.get(j) + ":" + dictlist.get(j)+"/");
+				globalWriter.append(wordlist.get(j) + ":" + dictlist.get(j)+"\n");
 			}
 			}
 		}
+		globalWriter.close();
+		testWriter.close();
+		masterWriter.close();
 	}
 	
 
@@ -213,9 +213,13 @@ static int getSentiment(HashMap<String, dictionaryEntry> dict, String[] in, long
 class dictionaryEntry {
 	long positive;
 	long negative;
-	public dictionaryEntry(String w){
+	public dictionaryEntry(){
 		positive = 0;
 		negative = 0;
+	}
+	public dictionaryEntry(long a, long b){
+		positive = a;
+		negative = b;
 	}
 	public void inc(boolean s) {
 		if(s)

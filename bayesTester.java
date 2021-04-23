@@ -19,7 +19,7 @@ public class bayesTester {
 		
 		BufferedReader masterReader = new BufferedReader(new FileReader("master_output.txt"));
 		BufferedReader testReader = new BufferedReader(new FileReader("test_set.txt"));
-		BufferedReader trainReader = new BufferedReader(new FileReader("global_output.txt"));
+		BufferedReader trainReader = new BufferedReader(new FileReader("trained_set.txt"));
 		
 		String in = "";
 		in = masterReader.readLine();
@@ -83,7 +83,7 @@ public class bayesTester {
 				int myNum = countriesNumber.get(countryCode);
 				int a = getSentiment(master, text.split(" "), masterPos, masterNeg);
 				int b = getSentiment(dictionary.get(myNum), text.split(" "), countriesPositive.get(myNum), countriesNegative.get(myNum));
-				
+				System.out.println(countryCode+": Generic classification: "+a+" Country-specific classification: "+b );
 				if(a==b) {
 					correct++;
 				}
