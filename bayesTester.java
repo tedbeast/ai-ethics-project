@@ -19,7 +19,7 @@ public class bayesTester {
 		
 		BufferedReader masterReader = new BufferedReader(new FileReader("master_output.txt"));
 		BufferedReader testReader = new BufferedReader(new FileReader("test_set.txt"));
-		BufferedReader trainReader = new BufferedReader(new FileReader("trained_set.txt"));
+		BufferedReader trainReader = new BufferedReader(new FileReader("global_output.txt"));
 		
 		String in = "";
 		in = masterReader.readLine();
