@@ -1,0 +1,24 @@
+Datasets needed:
+Sentiment140
+https://www.kaggle.com/kazanova/sentiment140
+UMass Global English
+https://www.kaggle.com/rtatman/the-umass-global-english-on-twitter-dataset
+
+Our files:
+
+globalBayes.java:
+No libraries are needed. Runs as-is
+When all datasets required are present, produces three files:
+trained_set.txt : The generic naive bayes model for sentiment gathered from Sentiment140.
+global_output.txt : Country-specific sentiment models based off of running the master sentiment models on tweets from particular countries. 80% of the tweets are used.
+test_set.txt : The withheld tweets for use in testing global_output.
+
+bayes_Tester.java:
+No libraries are needed. Runs as-is
+When the above three txt files are present, it reads in the models and tests both the global and test outputs on them and prints the results to console.
+Currently, the results of the global_output seem overwhelmingly negative. The models are first of all negatively biased; secondly the models are so small that they are often encountering words not in the dictionary;
+To fix this, we would need to implement a regression (step back to using the generic sentiment model when no country-specific model is present.)
+
+languageSentiment.java
+This file is unfinished and does not work.
+We tried for a long time to use libraries to no luck as the twitter library was not working for us, at that point we decided to just make Naive Bayes from scratch and not use any libraries.
